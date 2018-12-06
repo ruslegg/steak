@@ -7,8 +7,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -22,12 +24,16 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.beans.PropertyChangeListener;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView mDevicesListView;
     private CheckBox mLED1;
     private Switch mSwitch;
+    private static int ardTemp = 0;
 
     private static Handler mHandler; // Our main handler that will receive callback notifications
     private ConnectedThread mConnectedThread; // bluetooth background worker thread to send and receive data
@@ -62,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         mListPairedDevicesBtn = (Button)findViewById(R.id.PairedBtn);
         mBTArrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);
         mBTAdapter = BluetoothAdapter.getDefaultAdapter(); // get a handle on the bluetooth radio
@@ -73,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         else{
             mSwitch.setChecked(false);
         }
+
         mSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -94,14 +101,13 @@ public class MainActivity extends AppCompatActivity {
         mHandler = new Handler(){
             public void handleMessage(android.os.Message msg){
                 if(msg.what == MESSAGE_READ){
-                    String readMessage = null;
-                    try {
-                        readMessage = new String((byte[]) msg.obj, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println(readMessage);
-                    SelectActivity.temperature.setText(readMessage);
+                    byte[] readbuf=(byte[])msg.obj;
+                    String readTemp=new String(readbuf);
+                    Matcher matcher = Pattern.compile("\\d{2}").matcher(readTemp);
+                    matcher.find();
+                    int temp = Integer.valueOf(matcher.group());
+                    System.out.println(temp);
+                    setArdTemp(temp);
                 }
 
                 if(msg.what == CONNECTING_STATUS){
@@ -109,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
+
 
         if (mBTArrayAdapter == null) {
             // Device does not support Bluetooth
@@ -282,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];  // buffer store for the stream
+            byte[] buffer = new byte[256];  // buffer store for the stream
             int bytes; // bytes returned from read()
             // Keep listening to the InputStream until an exception occurs
             System.out.println("Buffer:" + buffer);
@@ -320,4 +327,16 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) { }
         }
     }
+
+    public static int getArdTemp() {
+        return ardTemp;
+    }
+
+    public static void setArdTemp(int ardTemp) {
+        MainActivity.ardTemp = ardTemp;
+        SelectActivity.temperature.setText(String.valueOf(ardTemp));
+
+
+    }
 }
+

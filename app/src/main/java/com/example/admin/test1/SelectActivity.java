@@ -30,6 +30,7 @@ public class SelectActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select);
+        temperature = (TextView)findViewById(R.id.etaText);
         meatArray.addAll(Arrays.asList(meatList));
         Spinner meatSpinner = (Spinner) findViewById(R.id.meatSpinner);
         ArrayAdapter meatAdapter = new ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,meatList);
@@ -60,7 +61,6 @@ public class SelectActivity extends AppCompatActivity {
 
             }
         });
-//        temperature = (TextView)findViewById(R.id.tempStatus);
 
     }
 

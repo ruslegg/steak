@@ -33,14 +33,14 @@
         tools:ignore="VectorDrawableCompat" />
 
     <!--<TextView-->
-        <!--android:id="@+id/meatType"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="20dp"-->
-        <!--android:layout_marginBottom="0dp"-->
-        <!--android:gravity="center"-->
-        <!--android:text="Meat type"-->
-        <!--android:textSize="30sp" />-->
+    <!--android:id="@+id/meatType"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginTop="20dp"-->
+    <!--android:layout_marginBottom="0dp"-->
+    <!--android:gravity="center"-->
+    <!--android:text="Meat type"-->
+    <!--android:textSize="30sp" />-->
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -57,14 +57,14 @@
             android:layout_height="match_parent" />
     </RelativeLayout>
     <!--<TextView-->
-        <!--android:id="@+id/meatDoneness"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginTop="20dp"-->
-        <!--android:layout_marginBottom="0dp"-->
-        <!--android:gravity="center"-->
-        <!--android:text="Meat doneness"-->
-        <!--android:textSize="30sp" />-->
+    <!--android:id="@+id/meatDoneness"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginTop="20dp"-->
+    <!--android:layout_marginBottom="0dp"-->
+    <!--android:gravity="center"-->
+    <!--android:text="Meat doneness"-->
+    <!--android:textSize="30sp" />-->
 
     <ImageView
         android:id="@+id/imageView1"
@@ -74,6 +74,7 @@
         android:layout_marginTop="30dp"
         app:srcCompat="@drawable/ic_barbecue"
         tools:ignore="VectorDrawableCompat" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
@@ -111,7 +112,7 @@
         <TextView
             android:id="@+id/etaText"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="40dp"
             android:layout_marginLeft="30dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="30dp"
