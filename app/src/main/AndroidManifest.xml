@@ -27,7 +27,9 @@
         <activity
             android:name=".SelectActivity"
             android:label="@string/title_activity_select"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
         <activity
             android:name=".CookingActivity"
             android:label="@string/title_activity_cooking"
@@ -37,6 +39,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
     </application>
 

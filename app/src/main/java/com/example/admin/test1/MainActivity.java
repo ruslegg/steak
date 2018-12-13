@@ -35,6 +35,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.beans.PropertyChangeListener;
 
+import static com.example.admin.test1.CookingActivity.mCardAdapter;
+import static com.example.admin.test1.CookingActivity.mViewPager;
+
 public class MainActivity extends AppCompatActivity {
 
     // GUI Components
@@ -289,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         public void run() {
-            byte[] buffer = new byte[256];  // buffer store for the stream
+            byte[] buffer = new byte[1024];  // buffer store for the stream
             int bytes; // bytes returned from read()
             // Keep listening to the InputStream until an exception occurs
             System.out.println("Buffer:" + buffer);
@@ -334,7 +337,29 @@ public class MainActivity extends AppCompatActivity {
 
     public static void setArdTemp(int ardTemp) {
         MainActivity.ardTemp = ardTemp;
-        SelectActivity.temperature.setText(String.valueOf(ardTemp));
+        if(SelectActivity.temperature != null) {
+            SelectActivity.temperature.setText(String.valueOf(ardTemp));
+        }
+        if(CookingActivity.tempValue != null){
+            CookingActivity.tempValue.setText(String.valueOf(ardTemp));
+        }
+
+        switch (ardTemp){
+            case 30:
+            {
+                if(mCardAdapter != null){
+                    mCardAdapter.addCardItemS(new Guideline("CHECKING","CHECKIN 2"));
+                    mCardAdapter.notifyDataSetChanged();
+                    mViewPager.setCurrentItem(mCardAdapter.getCount()-1);
+                }
+
+                break;
+            }
+        default: {
+            break;
+        }
+
+        }
 
 
     }
