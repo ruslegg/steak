@@ -1,18 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#ffd078"
-    android:orientation="vertical"
-    tools:context=".CookingActivity"
-    android:keepScreenOn="true">
+    tools:context=".MainActivity">
 
-    <include
-        layout="@layout/content_cooking"
+    <ListView
+        android:id="@+id/optionsLV"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="4" />
+        android:scrollbars="vertical" />
 
-</LinearLayout>
+</RelativeLayout>

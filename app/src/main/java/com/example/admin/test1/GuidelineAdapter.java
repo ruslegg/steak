@@ -1,20 +1,14 @@
 package com.example.admin.test1;
 
-/**
- * Created by KottlandPro TET on 3/3/2018.
- */
-
-
 import android.support.v4.view.PagerAdapter;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.List;
-
-// public class CardPagerAdapterS {
 
 
 public class GuidelineAdapter extends PagerAdapter {
@@ -33,7 +27,6 @@ public class GuidelineAdapter extends PagerAdapter {
         mViews.add(null);
         mData.add(item);
     }
-
 
 
     public float getBaseElevation() {

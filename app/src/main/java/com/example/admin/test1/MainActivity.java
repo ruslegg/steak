@@ -7,10 +7,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -23,49 +21,39 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.beans.PropertyChangeEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.beans.PropertyChangeListener;
 
-import static com.example.admin.test1.CookingActivity.mCardAdapter;
-import static com.example.admin.test1.CookingActivity.mViewPager;
+import static com.example.admin.test1.CookingActivity.finishButton;
+import static com.example.admin.test1.SelectActivity.requiredTemperature;
 
 public class MainActivity extends AppCompatActivity {
 
-    // GUI Components
-    private TextView mBluetoothStatus;
-    private TextView mReadBuffer;
-    private Button mScanBtn;
-    private Button mOffBtn;
     private Button mListPairedDevicesBtn;
-    private Button mDiscoverBtn;
-    private BluetoothAdapter mBTAdapter;
+    public static  BluetoothAdapter mBTAdapter;
     private Set<BluetoothDevice> mPairedDevices;
     private ArrayAdapter<String> mBTArrayAdapter;
     private ListView mDevicesListView;
-    private CheckBox mLED1;
     private Switch mSwitch;
     private static int ardTemp = 0;
-
-    private static Handler mHandler; // Our main handler that will receive callback notifications
-    private ConnectedThread mConnectedThread; // bluetooth background worker thread to send and receive data
-    private BluetoothSocket mBTSocket = null; // bi-directional client-to-client data path
-
+    private static int prevTemp = 0;
+    private static int prevTimes = 0;
+    private static boolean flipStarted = false;
+    public static Handler mHandler; // Our main handler that will receive callback notifications
+    public static ConnectedThread mConnectedThread; // bluetooth background worker thread to send and receive data
+    public static BluetoothSocket mBTSocket = null; // bi-directional client-to-client data path
     private static final UUID BTMODULEUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB"); // "random" unique identifier
-
-
+    public static String address = "";
+    public static String name = "";
     // #defines for identifying shared types between calling functions
-    private final static int REQUEST_ENABLE_BT = 1; // used to identify adding bluetooth names
-    private final static int MESSAGE_READ = 2; // used in bluetooth handler to identify message update
-    private final static int CONNECTING_STATUS = 3; // used in bluetooth handler to identify message status
+    public final static int REQUEST_ENABLE_BT = 1; // used to identify adding bluetooth names
+    public final static int MESSAGE_READ = 2; // used in bluetooth handler to identify message update
+    public final static int CONNECTING_STATUS = 3; // used in bluetooth handler to identify message status
 
 
     @Override
@@ -118,11 +106,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         };
-
-
         if (mBTArrayAdapter == null) {
             // Device does not support Bluetooth
-            mBluetoothStatus.setText("Status: Bluetooth not found");
             Toast.makeText(getApplicationContext(),"Bluetooth device not found!",Toast.LENGTH_SHORT).show();
         }
         else {
@@ -134,12 +119,10 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
-
     private void bluetoothOn(){
         if (!mBTAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-//            mBluetoothStatus.setText("Bluetooth enabled");
             Toast.makeText(getApplicationContext(),"Bluetooth turned on",Toast.LENGTH_SHORT).show();
 
         }
@@ -147,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"Bluetooth is already on", Toast.LENGTH_SHORT).show();
         }
     }
-
     // Enter here after user selects "yes" or "no" to enabling radio
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent Data){
@@ -160,44 +142,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
     private void bluetoothOff(){
         mBTAdapter.disable(); // turn off
         Toast.makeText(getApplicationContext(),"Bluetooth turned Off", Toast.LENGTH_SHORT).show();
     }
-
-    private void discover(View view){
-        // Check if the device is already discovering
-        if(mBTAdapter.isDiscovering()){
-            mBTAdapter.cancelDiscovery();
-            Toast.makeText(getApplicationContext(),"Discovery stopped",Toast.LENGTH_SHORT).show();
-        }
-        else{
-            if(mBTAdapter.isEnabled()) {
-                mBTArrayAdapter.clear(); // clear items
-                mBTAdapter.startDiscovery();
-                Toast.makeText(getApplicationContext(), "Discovery started", Toast.LENGTH_SHORT).show();
-                registerReceiver(blReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-            }
-            else{
-                Toast.makeText(getApplicationContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    final BroadcastReceiver blReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(BluetoothDevice.ACTION_FOUND.equals(action)){
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                // add the name to the list
-                mBTArrayAdapter.add(device.getName() + "\n" + device.getAddress());
-                mBTArrayAdapter.notifyDataSetChanged();
-            }
-        }
-    };
-
     private void listPairedDevices(View view){
         mPairedDevices = mBTAdapter.getBondedDevices();
         if(mBTAdapter.isEnabled()) {
@@ -210,9 +158,9 @@ public class MainActivity extends AppCompatActivity {
         else
             Toast.makeText(getApplicationContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
     }
-
     private AdapterView.OnItemClickListener mDeviceClickListener = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> av, View v, int arg2, long arg3) {
+
 
             if(!mBTAdapter.isEnabled()) {
                 Toast.makeText(getBaseContext(), "Bluetooth not on", Toast.LENGTH_SHORT).show();
@@ -221,15 +169,14 @@ public class MainActivity extends AppCompatActivity {
 
             // Get the device MAC address, which is the last 17 chars in the View
             String info = ((TextView) v).getText().toString();
-            final String address = info.substring(info.length() - 17);
-            final String name = info.substring(0,info.length() - 17);
+            address = info.substring(info.length() - 17);
+            name = info.substring(0,info.length() - 17);
 
             // Spawn a new thread to avoid blocking the GUI one
             new Thread()
             {
                 public void run() {
                     boolean fail = false;
-
                     BluetoothDevice device = mBTAdapter.getRemoteDevice(address);
 
                     try {
@@ -264,19 +211,14 @@ public class MainActivity extends AppCompatActivity {
             }.start();
         }
     };
-
-    private BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
+    public static BluetoothSocket createBluetoothSocket(BluetoothDevice device) throws IOException {
         return  device.createRfcommSocketToServiceRecord(BTMODULEUUID);
         //creates secure outgoing connection with BT device using UUID
     }
 
-    private class ConnectedThread extends Thread {
-        private final BluetoothSocket mmSocket;
+    public static class ConnectedThread extends Thread {
         private final InputStream mmInStream;
-        private final OutputStream mmOutStream;
-
         public ConnectedThread(BluetoothSocket socket) {
-            mmSocket = socket;
             InputStream tmpIn = null;
             OutputStream tmpOut = null;
 
@@ -284,11 +226,8 @@ public class MainActivity extends AppCompatActivity {
             // member streams are final
             try {
                 tmpIn = socket.getInputStream();
-                tmpOut = socket.getOutputStream();
             } catch (IOException e) { }
-
             mmInStream = tmpIn;
-            mmOutStream = tmpOut;
         }
 
         public void run() {
@@ -314,54 +253,33 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
-        /* Call this from the main activity to send data to the remote device */
-        public void write(String input) {
-            byte[] bytes = input.getBytes();           //converts entered String into bytes
-            try {
-                mmOutStream.write(bytes);
-            } catch (IOException e) { }
-        }
-
-        /* Call this from the main activity to shutdown the connection */
-        public void cancel() {
-            try {
-                mmSocket.close();
-            } catch (IOException e) { }
-        }
     }
-
-    public static int getArdTemp() {
-        return ardTemp;
-    }
-
     public static void setArdTemp(int ardTemp) {
-        MainActivity.ardTemp = ardTemp;
         if(SelectActivity.temperature != null) {
             SelectActivity.temperature.setText(String.valueOf(ardTemp));
         }
-        if(CookingActivity.tempValue != null){
-            CookingActivity.tempValue.setText(String.valueOf(ardTemp));
-        }
-
-        switch (ardTemp){
-            case 30:
-            {
-                if(mCardAdapter != null){
-                    mCardAdapter.addCardItemS(new Guideline("CHECKING","CHECKIN 2"));
-                    mCardAdapter.notifyDataSetChanged();
-                    mViewPager.setCurrentItem(mCardAdapter.getCount()-1);
+        if(CookingActivity.tempValue != null) {
+            if(!flipStarted && prevTimes < 4) {
+                if(ardTemp > prevTemp) {
+                    prevTemp = ardTemp;
+                    prevTimes++;
                 }
-
-                break;
+                System.out.println("Temp: "+prevTemp+"\n Times: "+prevTimes);
             }
-        default: {
-            break;
+            else if (!flipStarted){
+                flipStarted = true;
+                CookingActivity.startFlip();
+            }
+            CookingActivity.tempValue.setText(String.valueOf(ardTemp));
+            if (ardTemp >= requiredTemperature - 3 && ardTemp <= requiredTemperature+2) {
+                CookingActivity.finished = true;
+                finishButton.setVisibility(View.VISIBLE);
+                CookingActivity.donePlayer.start();
+            }
+            else if(ardTemp > requiredTemperature+2){
+                CookingActivity.alarmPlayer.start();
+            }
         }
-
-        }
-
-
     }
 }
 

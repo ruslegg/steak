@@ -28,12 +28,6 @@
             android:name=".SelectActivity"
             android:label="@string/title_activity_select"
             android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
-        <activity
-            android:name=".CookingActivity"
-            android:label="@string/title_activity_cooking"
-            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -41,6 +35,19 @@
             </intent-filter>
 
         </activity>
+        <activity
+            android:name=".CookingActivity"
+            android:label="@string/title_activity_cooking"
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+        <activity
+            android:name=".FinishActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+
+
+        <activity android:name=".OptionsActivity"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
